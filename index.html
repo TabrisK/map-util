@@ -9,7 +9,8 @@
 
 
     <meta charset="UTF-8">
-    <title>Title</title>
+    <link href="./favicon.ico" rel="icon" type="image/x-icon" />
+    <title>map-util</title>
     <style type="text/css">
         ul,li{list-style: none;margin:0;padding:0;float:left;}
         html{height:100%}
@@ -37,6 +38,7 @@
         startRead(fileInput);
     };
     function draw(points){
+        map.clearOverlays();
         var pointIs = points.map(function(p){
             return new BMap.Point(p[0],p[1]);
         });
