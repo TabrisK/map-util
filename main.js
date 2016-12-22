@@ -48,9 +48,9 @@ function loaded(evt) {
         // run other charset test
     }*/
     // xhr.send(fileString)
-    var points = _.compact(fileString.split(/[ \n]/)).map(function(val){
+    var points = _.compact(fileString.split(/[\n]/)).map(function(val){
         var p =val.split(",");
-        return [Number(p[1]), Number(p[0])];
+        return [Number(p[1]), Number(p[0]), p[2]];
     });
     draw(points);
 }
