@@ -42,7 +42,13 @@
 </head>
 <body>
 <div id="container"></div>
-<input id="file" type="file">
+<div>
+    <input id="file" type="file" style="display: inline-block;">
+    <input id="jf" value='{"lon": 3,"lat": 2,"time": 0}'>
+    <div style="display: inline-block;">输入坐标点类型<input name="coordType" type="radio" value="google" checked>google<input
+            name="coordType" type="radio" value="baidu">baidu
+    </div>
+</div>
 <p>总长：<b id="sum"></b>米</p>
 <p>时长：<b id="duration"></b></p>
 <p>起始：<b id="from"></b></p>
@@ -56,31 +62,41 @@
 
     var point = new BMap.Point(121.48, 31.22);
     var fileInput = document.getElementById("file");
+    var coordTypeDOM = document.getElementsByName("coordType");
     map.centerAndZoom(point, 15);
     map.enableScrollWheelZoom();
 
     fileInput.onchange = function (e) {
         startRead(fileInput);
     };
-    function draw(points) {
-        debugger;
+
+    function pointsProcess(points) {
         map.clearOverlays();
         var pointIs = points.map(function (p) {
             return new BMap.Point(p[0], p[1]);
         });
-        convert(pointIs, function (ps) {
-            map.addOverlay(new BMap.Polyline(ps));
-            map.setViewport(ps);
-            document.getElementById("sum").innerHTML = getDistance(ps).toFixed(3);
-            if(points[0][2] && points[points.length - 1][2]){
-                document.getElementById("from").innerHTML = points[0][2];
-                document.getElementById("to").innerHTML = points[points.length - 1][2];
-                var dTime =
-                        new Date(points[points.length - 1][2]).getTime() -
-                        new Date(points[0][2]).getTime() ;
-                document.getElementById("duration").innerHTML = getDuration(dTime);
-            }
-        }, 0);
+        var type = _.find(coordTypeDOM, {checked: true}).value;
+        if (type == "google")
+            convert(pointIs, function (ps) {
+                draw(ps, points);
+            }, 0);
+        else if(type == "baidu"){
+            draw(pointIs, points);
+        }
+    }
+
+    function draw(ps, points){
+        map.addOverlay(new BMap.Polyline(ps));
+        map.setViewport(ps);
+        document.getElementById("sum").innerHTML = getDistance(ps).toFixed(3);
+        if (points[0][2] && points[points.length - 1][2]) {
+            document.getElementById("from").innerHTML = points[0][2];
+            document.getElementById("to").innerHTML = points[points.length - 1][2];
+            var dTime =
+                    new Date(points[points.length - 1][2]).getTime() -
+                    new Date(points[0][2]).getTime();
+            document.getElementById("duration").innerHTML = getDuration(dTime);
+        }
     }
 
     function getDistance(ps) {
@@ -95,17 +111,17 @@
 
     function convert(ps, fn, startI) {
         var convertor = new BMap.Convertor();
-        if(!ps[startI]) fn([]);
-        if(ps[startI + convertMax - 1]){//到此100个存在，继续向下求
+        if (!ps[startI]) fn([]);
+        if (ps[startI + convertMax - 1]) {//到此100个存在，继续向下求
             convertor.translate(ps.slice(startI, startI + convertMax), 1, 5, function (data) {
                 if (data.status === 0) {
-                    convert(ps, function(subPs){
+                    convert(ps, function (subPs) {
                         return fn(data.points.concat(subPs));
                     }, startI + convertMax);
                 }
             });
-        }else{//第100个已不存在，为最后一批点
-            convertor.translate(ps.slice(startI, ps.length - 1), 1, 5, function (data) {
+        } else {//第100个已不存在，为最后一批点
+            convertor.translate(ps.slice(startI, ps.length), 1, 5, function (data) {
                 if (data.status === 0) {
                     fn(data.points);
                 }
@@ -113,23 +129,23 @@
         }
     }
 
-    function getDuration(input, lang){
-        if(!input)return input;
+    function getDuration(input, lang) {
+        if (!input)return input;
         var out = "";
-        var min,hours,days;
+        var min, hours, days;
         var tStr = {
-            d: lang == "en"?"day":"天",
-            h: lang == "en"?"h":"小时",
-            m: lang == "en"?"min":"分钟"
+            d: lang == "en" ? "day" : "天",
+            h: lang == "en" ? "h" : "小时",
+            m: lang == "en" ? "min" : "分钟"
         };
-        input = Math.ceil(input/60);
+        input = Math.ceil(input / 60);
         min = input % 60;
         out += min + tStr.m;
-        if(input - min > 0){
-            hours = (input - min) % (60*24) / 60;
+        if (input - min > 0) {
+            hours = (input - min) % (60 * 24) / 60;
             out = hours + tStr.h + out;
-            if(input - min - hours*60 > 0){
-                days = (input - min - hours*60) / (24*60);
+            if (input - min - hours * 60 > 0) {
+                days = (input - min - hours * 60) / (24 * 60);
                 out = days + tStr.d + out;
             }
         }

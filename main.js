@@ -4,6 +4,8 @@
  * Description:
  */
 
+var fInfo;
+
 function startRead(ele) {
     // obtain input element through DOM
 
@@ -16,7 +18,7 @@ function startRead(ele) {
 function getAsText(readFile) {
 
     var reader = new FileReader();
-
+    fInfo = readFile;
     // Read file into memory as UTF-8
     reader.readAsText(readFile, "UTF-8");
 
@@ -48,11 +50,39 @@ function loaded(evt) {
         // run other charset test
     }*/
     // xhr.send(fileString)
-    var points = _.compact(fileString.split(/[\n]/)).map(function(val){
-        var p =val.split(",");
-        return [Number(p[1]), Number(p[0]), p[2]];
+    var points = [];
+    var ext = getExt(fInfo.name);
+    if(ext == "csv")
+        points = parseCSV(fileString);
+    else if(ext == "json"){
+        points = parseJSON(fileString);
+    }
+    pointsProcess(points);
+}
+
+function parseCSV(str){
+    return _.compact(str.split(/[\n]/)).map(function(val){
+    var p =val.split(",");
+    return [Number(p[1]), Number(p[0]), p[2]];
+});
+}
+
+function parseJSON(str){
+    var jf;
+    try{
+        jf = JSON.parse(document.getElementById("jf").value);
+    }catch(err){
+        alert("json-formating parsed error");
+    }
+    if(!jf.lon || !jf.lat) alert("json-formating lost lon or lat");
+    return JSON.parse(str).map(function(val){
+        return [val[jf.lon], val[jf.lat], val[jf.time]];
     });
-    draw(points);
+}
+
+function getExt(name){
+    var sL = name.split(".");
+    return sL[sL.length - 1];
 }
 
 function errorHandler(evt) {
