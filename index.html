@@ -44,8 +44,8 @@
 <div id="container"></div>
 <div>
     <input id="file" type="file" style="display: inline-block;">
-    <input id="jf" value='{"lon": 3,"lat": 2,"time": 0}'>
-    <div style="display: inline-block;">输入坐标点类型<input name="coordType" type="radio" value="google" checked>google<input
+    JSON映射：<input id="jf" value='{"lon": 3,"lat": 2,"time": 0}'>
+    <div style="display: inline-block;">输入坐标点类型：<input name="coordType" type="radio" value="gps" checked>GPS<input
             name="coordType" type="radio" value="baidu">baidu
     </div>
 </div>
@@ -76,7 +76,7 @@
             return new BMap.Point(p[0], p[1]);
         });
         var type = _.find(coordTypeDOM, {checked: true}).value;
-        if (type == "google")
+        if (type == "gps")
             convert(pointIs, function (ps) {
                 draw(ps, points);
             }, 0);
@@ -90,8 +90,8 @@
         map.setViewport(ps);
         document.getElementById("sum").innerHTML = getDistance(ps).toFixed(3);
         if (points[0][2] && points[points.length - 1][2]) {
-            document.getElementById("from").innerHTML = points[0][2];
-            document.getElementById("to").innerHTML = points[points.length - 1][2];
+            document.getElementById("from").innerHTML = new Date(points[0][2]).toString();
+            document.getElementById("to").innerHTML = new Date(points[points.length - 1][2]).toString();
             var dTime =
                     new Date(points[points.length - 1][2]).getTime() -
                     new Date(points[0][2]).getTime();
