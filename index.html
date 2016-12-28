@@ -68,6 +68,7 @@
 
     fileInput.onchange = function (e) {
         startRead(fileInput);
+        fileInput.value = "";
     };
 
     function pointsProcess(points) {
@@ -80,13 +81,14 @@
             convert(pointIs, function (ps) {
                 draw(ps, points);
             }, 0);
-        else if(type == "baidu"){
+        else if (type == "baidu") {
             draw(pointIs, points);
         }
     }
 
-    function draw(ps, points){
+    function draw(ps, points) {
         map.addOverlay(new BMap.Polyline(ps));
+        setMarker(ps);
         map.setViewport(ps);
         document.getElementById("sum").innerHTML = getDistance(ps).toFixed(3);
         if (points[0][2] && points[points.length - 1][2]) {
@@ -96,6 +98,35 @@
                     new Date(points[points.length - 1][2]).getTime() -
                     new Date(points[0][2]).getTime();
             document.getElementById("duration").innerHTML = getDuration(dTime);
+        }
+    }
+
+    function setMarker(ps) {
+        for (var index in ps) {
+            var marker;
+            var i = Number(index);
+            if (i == 0 || i == ps.length - 1) {//起始点 or 结束点
+                marker = new BMap.Marker(ps[i]);
+                marker.setZIndex(0);
+                setLabel(marker, i+1, {type: "large"});
+            } else if ((i + 1) % 5 == 0) {//中间点。每隔5点添加一个marker
+                marker = new BMap.Marker(ps[i]);
+                setLabel(marker, i+1, {});
+            }
+            map.addOverlay(marker);
+        }
+
+
+        function setLabel(mk, str, _opts) {
+            var opts = _opts || {};
+            var label = new BMap.Label(str, {offset: new BMap.Size(10 , 30)});
+            label.setStyle({
+                "border-radius": "3px",
+                "background-color": opts.type == "large"? "rgba(255,0,0,0.6)":"rgba(128,128,128,0.7)",
+                "background-opicty": "",
+                "color": "white"
+            });
+            mk.setLabel(label);
         }
     }
 
