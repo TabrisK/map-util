@@ -10,7 +10,7 @@ function startRead(ele) {
     // obtain input element through DOM
 
     var file = ele.files[0];
-    if(file){
+    if (file) {
         getAsText(file);
     }
 }
@@ -52,41 +52,42 @@ function loaded(evt) {
     // xhr.send(fileString)
     var points = [];
     var ext = getExt(fInfo.name);
-    if(ext == "csv")
+    if (ext == "csv")
         points = parseCSV(fileString);
-    else if(ext == "json"){
+    else if (ext == "json") {
         points = parseJSON(fileString);
     }
     pointsProcess(points);
 }
 
-function parseCSV(str){
-    return _.compact(str.split(/[\n]/)).map(function(val){
-    var p =val.split(",");
-    return [Number(p[1]), Number(p[0]), p[2]];
-});
+function parseCSV(str) {
+    return _.compact(str.split(/[\n]/)).map(function(val) {
+        var p = val.split(",");
+        return [Number(p[1]), Number(p[0]), p[2]];
+    });
 }
 
-function parseJSON(str){
+function parseJSON(str) {
     var jf;
-    try{
+    try {
         jf = JSON.parse(document.getElementById("jf").value);
-    }catch(err){
+    } catch (err) {
         alert("json-formating parsed error");
     }
-    if(!jf.lon || !jf.lat) alert("json-formating lost lon or lat");
-    return JSON.parse(str).map(function(val){
+    if (jf.lon == null || jf.lon == undefined || jf.lat == null || jf.lat == undefined)
+        alert("json-formating lost lon or lat");
+    return JSON.parse(str).map(function(val) {
         return [val[jf.lon], val[jf.lat], val[jf.time]];
     });
 }
 
-function getExt(name){
+function getExt(name) {
     var sL = name.split(".");
     return sL[sL.length - 1];
 }
 
 function errorHandler(evt) {
-    if(evt.target.error.name == "NotReadableError") {
+    if (evt.target.error.name == "NotReadableError") {
         // The file could not be read
     }
 }
