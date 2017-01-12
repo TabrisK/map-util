@@ -175,7 +175,7 @@
                  **/
                 convertor.translate(ps.slice(startI, startI + convertMax), 1, 5, function(data) {
                     if (data.status === 0) {
-                        convert(ps, function(subPs) {
+                        arguments.callee(ps, function(subPs) {
                             return fn(data.points.concat(subPs));
                         }, startI + convertMax);
                     }
